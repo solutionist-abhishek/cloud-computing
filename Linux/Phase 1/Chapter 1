@@ -1,0 +1,243 @@
+Now let's discuss the tool you'll use the most.
+
+### What is the Terminal?
+
+The terminal is simply a program that lets you type commands instead of clicking buttons.
+
+Think of it as a text-based interface to interact with your computer.
+
+Examples include:
+
+- GNOME Terminal (Ubuntu)
+- Windows Terminal
+- Konsole
+- xterm
+
+The terminal itself doesn't execute commands—it provides a window where you can interact with a shell.
+
+---
+
+# What is a Shell?
+
+The shell is a command interpreter.
+
+Its job is to:
+
+1. Read your command.
+2. Understand it.
+3. Execute it (or ask the operating system to execute it).
+4. Show the result.
+
+For example, when you type:
+
+```bash
+ls
+```
+
+Here's what happens:
+
+```
+You type:
+ls
+
+↓
+
+Terminal sends "ls" to the shell.
+
+↓
+
+Shell finds the "ls" program.
+
+↓
+
+Kernel starts the program.
+
+↓
+
+Program runs.
+
+↓
+
+Output is displayed in the terminal.
+```
+
+So:
+
+- **Terminal** = the application (window) you interact with.
+- **Shell** = the program inside that interprets your commands.
+
+---
+
+# What is Bash?
+
+**Bash** stands for **Bourne Again SHell**.
+
+It is one of the most widely used shells on Linux.
+
+Other shells include:
+
+- sh
+- zsh
+- fish
+- ksh
+
+They all interpret commands, but they differ in features and user experience.
+
+Ubuntu traditionally uses Bash by default, though other shells can be installed.
+
+---
+
+# Terminal vs Shell
+
+A common interview question:
+
+| Terminal | Shell |
+| --- | --- |
+| A program that provides a text interface | A program that interprets commands |
+| Displays output | Executes commands |
+| Examples: GNOME Terminal, Windows Terminal | Examples: Bash, Zsh, Fish |
+
+A simple analogy:
+
+- **Terminal** = the microphone and speaker.
+- **Shell** = the person listening to your words and acting on them.
+
+---
+
+# What is a Command?
+
+A command is simply an instruction.
+
+For example:
+
+```bash
+pwd
+```
+
+means:
+
+> Print Working Directory.
+> 
+
+Another example:
+
+```bash
+date
+```
+
+asks the system to display the current date and time.
+
+---
+
+# What Happens When You Run a Command?
+
+Suppose you run:
+
+```bash
+ls
+```
+
+Internally:
+
+```
+Keyboard
+↓
+
+Terminal
+↓
+
+Shell
+↓
+
+Kernel
+↓
+
+Filesystem
+↓
+
+ls program
+
+↓
+
+Output
+
+↓
+
+Terminal
+```
+
+Understanding this flow will make many Linux concepts much easier later on.
+
+---
+
+# Where Are Commands Stored?
+
+Many commands are executable files located in directories such as:
+
+```
+/bin
+/usr/bin
+/usr/local/bin
+```
+
+When you type:
+
+```bash
+ls
+```
+
+the shell searches these directories to find the executable.
+
+You can see where a command comes from:
+
+```bash
+which ls
+```
+
+Example output:
+
+```
+/usr/bin/ls
+```
+
+We'll learn more about how the shell searches for commands when we discuss the `PATH` environment variable in a later phase.
+
+---
+
+# Your First Practical Exercises
+
+Open Ubuntu and try these commands one by one:
+
+```bash
+pwd
+```
+
+```bash
+date
+```
+
+```bash
+whoami
+```
+
+```bash
+hostname
+```
+
+```bash
+echo Hello Linux
+```
+
+```bash
+which ls
+```
+
+```bash
+clear
+```
+
+After each command, don't just look at the output—ask yourself:
+
+- What information did it return?
+- Where might that information come from?
+- Why would this command be useful?
