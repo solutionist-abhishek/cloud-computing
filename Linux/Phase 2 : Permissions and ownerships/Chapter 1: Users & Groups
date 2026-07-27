@@ -1,0 +1,786 @@
+    Excellent. **Phase 2 is where Linux starts becoming "real."**
+    
+    In Phase 1, you learned **how to use Linux**.
+    
+    In Phase 2, you'll learn **how Linux protects files and controls access**.
+    
+    This is one of the most asked topics in:
+    
+    - SDE interviews
+    - DevOps interviews
+    - Linux Administrator interviews
+    - Cloud (AWS/Azure/GCP)
+    - Docker & Kubernetes
+    
+    ---
+    
+    # Phase 2 Roadmap
+    
+    We'll cover it in this order:
+    
+    ```
+    Chapter 1 → Users & Groups
+            ↓
+    Chapter 2 → File Ownership
+            ↓
+    Chapter 3 → File Permissions (r,w,x)
+            ↓
+    Chapter 4 → chmod (Symbolic & Numeric)
+            ↓
+    Chapter 5 → chown & chgrp
+            ↓
+    Chapter 6 → Default Permissions (umask)
+            ↓
+    Chapter 7 → Hard Links vs Soft Links
+            ↓
+    Chapter 8 → Practical Permission Scenarios
+    ```
+    
+    Today we start with **Chapter 1**, because without understanding users, permissions won't make sense.
+    
+    ---
+    
+    ## First Question
+    
+    ### Why Do We Need Users?
+    
+    Imagine there were **no users**.
+    
+    Everyone who logs into the computer could:
+    
+    - Delete your code
+    - Read your passwords
+    - Change system settings
+    - Install malware
+    - Delete the operating system
+    
+    That would be chaos.
+    
+    Linux solves this by identifying **who is doing what**.
+    
+    Every process and every file is associated with a user.
+    
+    ---
+    
+    # Think of a College Hostel
+    
+    Imagine your hostel.
+    
+    There are:
+    
+    - Students
+    - Wardens
+    - Security guards
+    
+    Not everyone has the same permissions.
+    
+    Students cannot access the CCTV room.
+    
+    Wardens can.
+    
+    Similarly:
+    
+    ```
+    Linux
+    
+    Administrator
+    ↓
+    
+    Developers
+    ↓
+    
+    Normal Users
+    ```
+    
+    Different users have different privileges.
+    
+    ---
+    
+    # Every Linux System Has Users
+    
+    Run:
+    
+    ```bash
+    whoami
+    ```
+    
+    Example:
+    
+    ```
+    abhishek
+    ```
+    
+    That means you're currently logged in as:
+    
+    ```
+    abhishek
+    ```
+    
+    ---
+    
+    ## Another Command
+    
+    ```bash
+    id
+    ```
+    
+    Example:
+    
+    ```
+    uid=1000(abhishek)
+    gid=1000(abhishek)
+    groups=1000(abhishek),27(sudo)
+    ```
+    
+    Don't worry about every field yet—we'll explain them one by one.
+    
+    ---
+    
+    # Types of Users
+    
+    There are **three main categories**.
+    
+    ---
+    
+    ## 1. Root User
+    
+    This is the **administrator**.
+    
+    Username:
+    
+    ```
+    root
+    ```
+    
+    The root user can:
+    
+    - Delete any file
+    - Read any file
+    - Install software
+    - Create users
+    - Shut down the system
+    - Modify system configuration
+    
+    Think of `root` as the super administrator.
+    
+    ---
+    
+    ### Example
+    
+    The root user can delete:
+    
+    ```
+    /
+    ```
+    
+    (if explicitly instructed to and not protected).
+    
+    That's why using root carelessly is dangerous.
+    
+    ---
+    
+    ## 2. Normal Users
+    
+    Example:
+    
+    ```
+    abhishek
+    ```
+    
+    Normal users:
+    
+    ✔ Can access their own files
+    
+    ✔ Can install software if granted permission (e.g., via `sudo`)
+    
+    ✔ Cannot normally modify critical system files
+    
+    ---
+    
+    ## 3. System Users
+    
+    Linux also creates users for services.
+    
+    Examples:
+    
+    ```
+    www-data
+    
+    mysql
+    
+    postgres
+    
+    nobody
+    ```
+    
+    These accounts usually don't log in interactively. They own files and run services securely.
+    
+    ---
+    
+    # What is UID?
+    
+    UID means:
+    
+    ```
+    User ID
+    ```
+    
+    Every user has a unique number.
+    
+    Example:
+    
+    ```
+    root
+    UID = 0
+    ```
+    
+    Example:
+    
+    ```
+    abhishek
+    UID = 1000
+    ```
+    
+    Linux actually identifies users by UID internally, not just by their names.
+    
+    ---
+    
+    Run:
+    
+    ```bash
+    id
+    ```
+    
+    Example:
+    
+    ```
+    uid=1000(abhishek)
+    ```
+    
+    ---
+    
+    # Why Use Numbers?
+    
+    Imagine there are 10 million users.
+    
+    Comparing integers is faster and more consistent than comparing strings.
+    
+    The kernel works with numeric IDs.
+    
+    ---
+    
+    # Root Always Has UID 0
+    
+    This is very important.
+    
+    ```
+    UID 0
+    
+    ↓
+    
+    Root
+    
+    ↓
+    
+    Unlimited privileges
+    ```
+    
+    If you ever see:
+    
+    ```
+    uid=0
+    ```
+    
+    you're operating with root privileges.
+    
+    ---
+    
+    # What is a Group?
+    
+    Suppose your company has:
+    
+    ```
+    Backend Team
+    
+    Frontend Team
+    
+    DevOps Team
+    ```
+    
+    Instead of assigning permissions to each person individually, you assign them to a group.
+    
+    Linux does the same.
+    
+    ---
+    
+    Example:
+    
+    ```
+    Group:
+    
+    developers
+    ```
+    
+    Members:
+    
+    ```
+    Abhishek
+    
+    Rahul
+    
+    Amit
+    
+    Priya
+    ```
+    
+    Grant the group access once, and all members inherit it.
+    
+    ---
+    
+    # Why Are Groups Useful?
+    
+    Imagine 500 developers.
+    
+    Without groups:
+    
+    ```
+    File A
+    
+    Allow User1
+    
+    Allow User2
+    
+    Allow User3
+    
+    ...
+    
+    Allow User500
+    ```
+    
+    With groups:
+    
+    ```
+    developers
+    
+    ↓
+    
+    Access Granted
+    ```
+    
+    Much simpler.
+    
+    ---
+    
+    # GID
+    
+    Groups also have IDs.
+    
+    ```
+    Group ID
+    
+    ↓
+    
+    GID
+    ```
+    
+    Example:
+    
+    ```
+    developers
+    
+    GID = 1001
+    ```
+    
+    ---
+    
+    Run:
+    
+    ```bash
+    id
+    ```
+    
+    Example:
+    
+    ```
+    uid=1000(abhishek)
+    
+    gid=1000(abhishek)
+    
+    groups=1000(abhishek),27(sudo)
+    ```
+    
+    ---
+    
+    Let's understand this.
+    
+    ```
+    uid=1000
+    
+    ↓
+    
+    You
+    ```
+    
+    ```
+    gid=1000
+    
+    ↓
+    
+    Primary group
+    ```
+    
+    ```
+    27(sudo)
+    
+    ↓
+    
+    Additional group
+    ```
+    
+    The `sudo` group is special because its members are typically allowed to run commands with administrative privileges (after authentication, depending on system configuration).
+    
+    ---
+    
+    # Primary Group
+    
+    Every user has one primary group.
+    
+    Example:
+    
+    ```
+    abhishek
+    
+    ↓
+    
+    Primary Group
+    
+    ↓
+    
+    abhishek
+    ```
+    
+    Most new files you create inherit this group by default.
+    
+    ---
+    
+    # Supplementary Groups
+    
+    A user can belong to many groups.
+    
+    Example:
+    
+    ```
+    Abhishek
+    
+    ↓
+    
+    developers
+    
+    docker
+    
+    sudo
+    
+    git
+    
+    network
+    ```
+    
+    These memberships allow access to different resources.
+    
+    ---
+    
+    # Check Your Groups
+    
+    Run:
+    
+    ```bash
+    groups
+    ```
+    
+    Example:
+    
+    ```
+    abhishek sudo docker
+    ```
+    
+    This shows the groups you're currently a member of.
+    
+    ---
+    
+    # Where Are Users Stored?
+    
+    Linux stores user account information in:
+    
+    ```
+    /etc/passwd
+    ```
+    
+    View it:
+    
+    ```bash
+    cat /etc/passwd
+    ```
+    
+    You'll see entries like:
+    
+    ```
+    root:x:0:0:root:/root:/bin/bash
+    ```
+    
+    Don't worry about every field yet.
+    
+    ---
+    
+    # Understanding One Entry
+    
+    Example:
+    
+    ```
+    root:x:0:0:root:/root:/bin/bash
+    ```
+    
+    Breakdown:
+    
+    ```
+    root
+    
+    ↓
+    
+    Username
+    ```
+    
+    ```
+    x
+    
+    ↓
+    
+    Password placeholder
+    ```
+    
+    Modern Linux systems store password hashes elsewhere (typically `/etc/shadow`), not directly in `/etc/passwd`.
+    
+    ```
+    0
+    
+    ↓
+    
+    UID
+    ```
+    
+    ```
+    0
+    
+    ↓
+    
+    GID
+    ```
+    
+    ```
+    /root
+    
+    ↓
+    
+    Home Directory
+    ```
+    
+    ```
+    /bin/bash
+    
+    ↓
+    
+    Default Shell
+    ```
+    
+    ---
+    
+    # Where Are Groups Stored?
+    
+    Groups are listed in:
+    
+    ```
+    /etc/group
+    ```
+    
+    View them:
+    
+    ```bash
+    cat /etc/group
+    ```
+    
+    Example:
+    
+    ```
+    sudo:x:27:
+    ```
+    
+    Meaning:
+    
+    ```
+    Group
+    
+    ↓
+    
+    sudo
+    
+    ↓
+    
+    GID
+    
+    ↓
+    
+    27
+    ```
+    
+    ---
+    
+    # Visualizing It
+    
+    ```
+                    Linux
+                       │
+         ┌─────────────┴─────────────┐
+         │                           │
+       Users                      Groups
+         │                           │
+         │                           │
+      Abhishek                  developers
+      Rahul                     docker
+      Amit                      sudo
+    ```
+    
+    Files are owned by **one user** and **one group**. Permissions are then checked against those ownerships.
+    
+    ---
+    
+    # Real Developer Example
+    
+    Imagine you're working on a backend project.
+    
+    ```
+    backend/
+    
+    app.py
+    config.py
+    ```
+    
+    Owner:
+    
+    ```
+    Abhishek
+    ```
+    
+    Group:
+    
+    ```
+    developers
+    ```
+    
+    Everyone in the `developers` group can be granted appropriate access without configuring each user individually.
+    
+    ---
+    
+    # Practice Lab
+    
+    Run these commands:
+    
+    ```bash
+    whoami
+    ```
+    
+    ```bash
+    id
+    ```
+    
+    ```bash
+    groups
+    ```
+    
+    ```bash
+    pwd
+    ```
+    
+    ```bash
+    cat /etc/passwd
+    ```
+    
+    ```bash
+    cat /etc/group
+    ```
+    
+    Try to identify:
+    
+    - Your username
+    - Your UID
+    - Your primary GID
+    - Any supplementary groups (such as `sudo` if present)
+    
+    ---
+    
+    # Mini Quiz
+    
+    Answer these without looking back:
+    
+    1. Why do operating systems need users?
+    2. What is the difference between the `root` user and a normal user?
+    3. What is a UID?
+    4. Why does Linux use numeric IDs internally?
+    5. What is a group?
+    6. What is the difference between a primary group and a supplementary group?
+    7. Which file stores user account information?
+    8. Which file stores group information?
+    9. What command shows your UID, GID, and group memberships?
+    10. Why are groups useful in organizations?
+    
+    ---
+    
+    # 🧠 Interview Questions
+    
+    These are common interview questions:
+    
+    > **Q:** What is the UID of the root user?
+    > 
+    
+    **Answer:** `0`
+    
+    ---
+    
+    > **Q:** Where is user information stored?
+    > 
+    
+    **Answer:** `/etc/passwd`
+    
+    ---
+    
+    > **Q:** Where are password hashes stored?
+    > 
+    
+    **Answer:** `/etc/shadow` (normally readable only by root)
+    
+    ---
+    
+    > **Q:** How can you see which groups you belong to?
+    > 
+    
+    **Answer:** `groups` or `id`
+    
+    ---
+    
+    # 🎯 Phase 2 Status
+    
+    You've completed the foundation for permissions.
+    
+    **Next Chapter:** **File Ownership**.
+    
+    You'll learn:
+    
+    - Who owns a file?
+    - What does `ls -l` really mean?
+    - Owner vs Group
+    - Understanding output like:
+    
+    ```
+    -rwxr-xr--
+    1 abhishek developers 2048 Jun 30 app.py
+    ```
+    
+    By the end of the next chapter, that line—which often looks cryptic to beginners—will make perfect sense.
