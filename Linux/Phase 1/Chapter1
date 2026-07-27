@@ -1,0 +1,164 @@
+### What is an Operating System?
+
+An Operating System (OS) is software that sits between your hardware and your applications.
+
+Imagine your computer like this:
+
+```
+Applications
+    ↑
+Operating System
+    ↑
+Hardware
+```
+
+Example:
+
+You open Google Chrome.
+
+Chrome does **not** directly talk to:
+
+- CPU
+- RAM
+- SSD
+- Keyboard
+- Monitor
+
+Instead, Chrome asks the OS:
+
+> "Please open this file."
+> 
+
+or
+
+> "Please display this webpage."
+> 
+
+The OS performs those operations using the hardware.
+
+Without an operating system, your programs would have to know how to control every hardware component themselves.
+
+---
+
+## Popular Operating Systems
+
+- Windows
+- macOS
+- Linux
+
+All of them perform the same basic job:
+
+- Manage memory
+- Manage CPU
+- Manage files
+- Manage users
+- Run programs
+- Control devices
+
+The difference lies in design, ecosystem, licensing, and tools.
+
+---
+
+# What is Linux?
+
+This is where many beginners get confused.
+
+People say:
+
+> "Linux is an Operating System."
+> 
+
+That isn't completely accurate.
+
+**Linux is actually the kernel.**
+
+The kernel is the core part of an operating system.
+
+A complete Linux operating system is built by combining:
+
+- the Linux kernel,
+- GNU utilities,
+- libraries,
+- package managers,
+- desktop environments (optional),
+- and many other tools.
+
+That's why you hear names like:
+
+- Ubuntu
+- Debian
+- Fedora
+- Arch Linux
+
+These are **Linux distributions** (often called "distros"), each packaging the Linux kernel with different software and defaults.
+
+---
+
+## What is the Kernel?
+
+The kernel is the brain of the operating system.
+
+It controls:
+
+- CPU scheduling
+- Memory allocation
+- Hardware access
+- Disk operations
+- Process management
+- Device drivers
+
+Think of it like this:
+
+```
+User
+    ↓
+Application
+    ↓
+Kernel
+    ↓
+Hardware
+```
+
+If Chrome wants to save a file:
+
+```
+Chrome
+↓
+
+Kernel
+↓
+
+SSD
+```
+
+The kernel decides:
+
+- where the file is stored,
+- who is allowed to access it,
+- when the disk is written to.
+
+Applications never directly control the hardware.
+
+---
+
+## Why Linux is Everywhere
+
+Linux powers much of modern computing because it is:
+
+- Open source
+- Stable
+- Secure
+- Efficient
+- Highly customizable
+
+It runs on:
+
+- most web servers,
+- many cloud platforms,
+- supercomputers,
+- Android devices (Android uses the Linux kernel),
+- embedded devices,
+- IoT devices,
+- and even spacecraft.
+
+For a backend or DevOps engineer, Linux is the standard environment.
