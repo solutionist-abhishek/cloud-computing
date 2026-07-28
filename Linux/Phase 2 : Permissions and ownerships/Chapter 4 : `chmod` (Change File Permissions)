@@ -1,0 +1,663 @@
+- Chapter 4: `chmod` (Change File Permissions)
+    
+    Excellent! Now comes one of the most practical commands in Linux.
+    
+    Until now, you've **read** permissions.
+    
+    Now you'll learn how to **change** them.
+    
+    This chapter is extremely important because commands like `chmod 755`, `chmod 644`, and `chmod +x` are used every day by developers, DevOps engineers, and system administrators.
+    
+    ---
+    
+    # Phase 2 – Chapter 4: `chmod` (Change File Permissions)
+    
+    ## Learning Objectives
+    
+    By the end of this chapter, you'll know:
+    
+    - What `chmod` does
+    - Symbolic mode (`u+x`, `g-w`, etc.)
+    - Numeric (octal) mode (`755`, `644`, etc.)
+    - How permission numbers are calculated
+    - Common permission patterns and when to use them
+    
+    ---
+    
+    # 1. What is `chmod`?
+    
+    `chmod` stands for **Change Mode**.
+    
+    It changes the permissions of a file or directory.
+    
+    Syntax:
+    
+    ```bash
+    chmod [options] permissions file
+    ```
+    
+    Example:
+    
+    ```bash
+    chmod u+x script.sh
+    ```
+    
+    This gives the **owner** execute permission.
+    
+    ---
+    
+    # 2. Before Changing Permissions
+    
+    Create a file:
+    
+    ```bash
+    touch app.py
+    ```
+    
+    Check permissions:
+    
+    ```bash
+    ls -l app.py
+    ```
+    
+    Example:
+    
+    ```
+    -rw-r--r--
+    ```
+    
+    Meaning:
+    
+    - Owner → Read, Write
+    - Group → Read
+    - Others → Read
+    
+    ---
+    
+    # 3. Two Ways to Use `chmod`
+    
+    There are two methods:
+    
+    ```
+    1. Symbolic Mode
+    2. Numeric (Octal) Mode
+    ```
+    
+    We'll learn both.
+    
+    ---
+    
+    # Part A – Symbolic Mode
+    
+    ## Who?
+    
+    | Symbol | Meaning |
+    | --- | --- |
+    | `u` | User (Owner) |
+    | `g` | Group |
+    | `o` | Others |
+    | `a` | All (Owner + Group + Others) |
+    
+    ---
+    
+    ## Operations
+    
+    | Symbol | Meaning |
+    | --- | --- |
+    | `+` | Add permission |
+    | `-` | Remove permission |
+    | `=` | Set exact permission |
+    
+    ---
+    
+    ## Permissions
+    
+    | Symbol | Meaning |
+    | --- | --- |
+    | `r` | Read |
+    | `w` | Write |
+    | `x` | Execute |
+    
+    ---
+    
+    ## Syntax
+    
+    ```bash
+    chmod who operation permission file
+    ```
+    
+    Example:
+    
+    ```bash
+    chmod u+x app.py
+    ```
+    
+    Breakdown:
+    
+    ```
+    u → Owner
+    + → Add
+    x → Execute
+    ```
+    
+    Result:
+    
+    Owner gets execute permission.
+    
+    ---
+    
+    ## More Examples
+    
+    ### Give Owner Execute Permission
+    
+    ```bash
+    chmod u+x script.sh
+    ```
+    
+    ---
+    
+    ### Remove Write from Group
+    
+    ```bash
+    chmod g-w file.txt
+    ```
+    
+    ---
+    
+    ### Add Read to Others
+    
+    ```bash
+    chmod o+r file.txt
+    ```
+    
+    ---
+    
+    ### Remove Execute from Everyone
+    
+    ```bash
+    chmod a-x script.sh
+    ```
+    
+    ---
+    
+    ### Give Everyone Execute Permission
+    
+    ```bash
+    chmod a+x script.sh
+    ```
+    
+    ---
+    
+    ### Set Owner to Read-Only
+    
+    ```bash
+    chmod u=r file.txt
+    ```
+    
+    Owner becomes:
+    
+    ```
+    r--
+    ```
+    
+    This **replaces** the owner's previous permissions because `=` sets the permissions exactly.
+    
+    ---
+    
+    # Part B – Numeric (Octal) Mode
+    
+    This is the method you'll see most often in tutorials and production systems.
+    
+    Example:
+    
+    ```bash
+    chmod 755 script.sh
+    ```
+    
+    But what does **755** mean?
+    
+    ---
+    
+    # Binary Thinking
+    
+    Each permission has a numeric value:
+    
+    | Permission | Value |
+    | --- | --- |
+    | `r` | 4 |
+    | `w` | 2 |
+    | `x` | 1 |
+    
+    Think of them as switches:
+    
+    ```
+    r = 4
+    w = 2
+    x = 1
+    ```
+    
+    Add the values to get the permission number.
+    
+    ---
+    
+    # Permission Values
+    
+    | Permission | Calculation | Number |
+    | --- | --- | --- |
+    | `---` | 0 | 0 |
+    | `--x` | 1 | 1 |
+    | `-w-` | 2 | 2 |
+    | `-wx` | 2+1 | 3 |
+    | `r--` | 4 | 4 |
+    | `r-x` | 4+1 | 5 |
+    | `rw-` | 4+2 | 6 |
+    | `rwx` | 4+2+1 | 7 |
+    
+    **Memorize this table.**
+    
+    ---
+    
+    # Understanding `755`
+    
+    ```
+    755
+    │ │ │
+    │ │ └── Others
+    │ └──── Group
+    └────── Owner
+    ```
+    
+    Break it down:
+    
+    Owner:
+    
+    ```
+    7 = 4+2+1 = rwx
+    ```
+    
+    Group:
+    
+    ```
+    5 = 4+1 = r-x
+    ```
+    
+    Others:
+    
+    ```
+    5 = 4+1 = r-x
+    ```
+    
+    Final permissions:
+    
+    ```
+    rwxr-xr-x
+    ```
+    
+    ---
+    
+    # Understanding `644`
+    
+    Owner:
+    
+    ```
+    6 = rw-
+    ```
+    
+    Group:
+    
+    ```
+    4 = r--
+    ```
+    
+    Others:
+    
+    ```
+    4 = r--
+    ```
+    
+    Final:
+    
+    ```
+    rw-r--r--
+    ```
+    
+    This is the default permission you'll often see for regular files.
+    
+    ---
+    
+    # Understanding `700`
+    
+    Owner:
+    
+    ```
+    7 = rwx
+    ```
+    
+    Group:
+    
+    ```
+    0 = ---
+    ```
+    
+    Others:
+    
+    ```
+    0 = ---
+    ```
+    
+    Final:
+    
+    ```
+    rwx------
+    ```
+    
+    Only the owner has access.
+    
+    ---
+    
+    # Understanding `777`
+    
+    Owner:
+    
+    ```
+    7 = rwx
+    ```
+    
+    Group:
+    
+    ```
+    7 = rwx
+    ```
+    
+    Others:
+    
+    ```
+    7 = rwx
+    ```
+    
+    Final:
+    
+    ```
+    rwxrwxrwx
+    ```
+    
+    ⚠️ **Avoid `777` unless you fully understand the security implications.** It grants everyone full access.
+    
+    ---
+    
+    # Common Permission Patterns
+    
+    | Number | Permissions | Common Use |
+    | --- | --- | --- |
+    | `644` | `rw-r--r--` | Regular files |
+    | `600` | `rw-------` | Private files (SSH keys, secrets) |
+    | `755` | `rwxr-xr-x` | Executable files, directories |
+    | `700` | `rwx------` | Private directories/scripts |
+    | `777` | `rwxrwxrwx` | Rarely appropriate |
+    
+    ---
+    
+    # Why Are Directories Often `755`?
+    
+    A directory needs:
+    
+    - `r` → List contents
+    - `x` → Enter the directory
+    
+    The owner also needs:
+    
+    - `w` → Create/delete/rename entries
+    
+    So `755` is a common choice.
+    
+    ---
+    
+    # Real Developer Examples
+    
+    ## Make a Shell Script Executable
+    
+    Create:
+    
+    ```bash
+    touch deploy.sh
+    ```
+    
+    Initially:
+    
+    ```
+    -rw-r--r--
+    ```
+    
+    Trying to run:
+    
+    ```bash
+    ./deploy.sh
+    ```
+    
+    may result in:
+    
+    ```
+    Permission denied
+    ```
+    
+    Fix:
+    
+    ```bash
+    chmod +x deploy.sh
+    ```
+    
+    Now execute it:
+    
+    ```bash
+    ./deploy.sh
+    ```
+    
+    ---
+    
+    ## Protect a Secret File
+    
+    ```bash
+    chmod 600 secret.txt
+    ```
+    
+    Permissions:
+    
+    ```
+    rw-------
+    ```
+    
+    Only the owner can read or modify it.
+    
+    ---
+    
+    ## Make a Project Directory Accessible
+    
+    ```bash
+    chmod 755 Project
+    ```
+    
+    Others can enter and list the directory (subject to permissions), but only the owner can modify its contents.
+    
+    ---
+    
+    # Recursive `chmod`
+    
+    Suppose:
+    
+    ```
+    Project/
+        src/
+        docs/
+        app.py
+    ```
+    
+    Change permissions for everything inside:
+    
+    ```bash
+    chmod -R 755 Project
+    ```
+    
+    - `R` means **recursive**.
+    
+    ⚠️ Be careful. This affects all files and subdirectories.
+    
+    ---
+    
+    # Practice Lab
+    
+    Create:
+    
+    ```bash
+    mkdir ChmodLab
+    cd ChmodLab
+    ```
+    
+    Create files:
+    
+    ```bash
+    touch app.py
+    touch script.sh
+    touch secret.txt
+    ```
+    
+    View permissions:
+    
+    ```bash
+    ls -l
+    ```
+    
+    Try these:
+    
+    ```bash
+    chmod u+x script.sh
+    ```
+    
+    ```bash
+    chmod g-w app.py
+    ```
+    
+    ```bash
+    chmod o-r secret.txt
+    ```
+    
+    Now try numeric mode:
+    
+    ```bash
+    chmod 755 script.sh
+    ```
+    
+    ```bash
+    chmod 600 secret.txt
+    ```
+    
+    ```bash
+    chmod 644 app.py
+    ```
+    
+    Check after each command:
+    
+    ```bash
+    ls -l
+    ```
+    
+    Observe how the permission string changes.
+    
+    ---
+    
+    # Mini Quiz
+    
+    1. What does `chmod` stand for?
+    2. What is the difference between symbolic mode and numeric mode?
+    3. What do `u`, `g`, `o`, and `a` represent?
+    4. What does `chmod u+x file` do?
+    5. What does `chmod g-w file` do?
+    6. What is the numeric value of:
+        - `r` = ?
+        - `w` = ?
+        - `x` = ?
+    7. Convert:
+        - `rw-` → ?
+        - `r-x` → ?
+        - `rwx` → ?
+    8. What permissions does `755` represent?
+    9. What permissions does `644` represent?
+    10. Why is `777` generally discouraged?
+    
+    ---
+    
+    # Interview Questions
+    
+    ### Q1: Explain `chmod 755 file`
+    
+    **Answer:**
+    
+    - Owner → `rwx`
+    - Group → `r-x`
+    - Others → `r-x`
+    
+    ---
+    
+    ### Q2: Why can't a newly created shell script usually be executed?
+    
+    **Answer:**
+    
+    Because it typically doesn't have the execute (`x`) permission. You add it using:
+    
+    ```bash
+    chmod +x script.sh
+    ```
+    
+    ---
+    
+    ### Q3: What's the difference between:
+    
+    ```bash
+    chmod u+x file
+    ```
+    
+    and
+    
+    ```bash
+    chmod 755 file
+    ```
+    
+    **Answer:**
+    
+    - `chmod u+x` adds execute permission only to the owner while leaving other permissions unchanged.
+    - `chmod 755` sets **all** permissions for owner, group, and others to exactly `rwxr-xr-x`.
+    
+    ---
+    
+    # Memory Trick
+    
+    ```
+    r = 4
+    w = 2
+    x = 1
+    ```
+    
+    ```
+    7 = rwx
+    6 = rw-
+    5 = r-x
+    4 = r--
+    3 = -wx
+    2 = -w-
+    1 = --x
+    0 = ---
+    ```
+    
+    If you memorize this mapping, you'll be able to read and write numeric permissions effortlessly.
+    
+    ---
+    
+    # Phase 2 Progress
+    
+    You've completed:
+    
+    - ✅ Users & Groups
+    - ✅ File Ownership
+    - ✅ Linux Permissions
+    - ✅ `chmod`
+    
+    The next chapter is **`chown` and `chgrp`**, where you'll learn how to change the **owner** and **group** of files—another essential skill for Linux administration and DevOps.
