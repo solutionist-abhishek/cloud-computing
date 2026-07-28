@@ -1,0 +1,332 @@
+- Chapter 3: Linux File Permissions
+    
+    # Phase 2 – Chapter 3: Linux File Permissions (Concise Notes)
+    
+    ---
+    
+    # 1. What are File Permissions?
+    
+    Permissions define **who can access a file or directory and what they can do with it.**
+    
+    Every file and directory has:
+    
+    - **Owner (User)**
+    - **Group**
+    - **Others**
+    
+    ---
+    
+    # 2. Permission Format
+    
+    Example:
+    
+    ```
+    -rwxr-xr--
+    ```
+    
+    Breakdown:
+    
+    ```
+    - rwx r-x r--
+    │ │   │   │
+    │ │   │   └── Others
+    │ │   └────── Group
+    │ └────────── Owner
+    └──────────── File Type
+    ```
+    
+    ---
+    
+    # 3. File Types
+    
+    | Symbol | Meaning |
+    | --- | --- |
+    | `-` | Regular file |
+    | `d` | Directory |
+    | `l` | Symbolic (soft) link |
+    | `c` | Character device |
+    | `b` | Block device |
+    
+    ---
+    
+    # 4. Permission Groups
+    
+    ```
+    Owner   Group   Others
+    rwx     r-x     r--
+    ```
+    
+    Linux checks permissions in this order:
+    
+    1. Owner
+    2. Group
+    3. Others
+    
+    ---
+    
+    # 5. Permission Symbols
+    
+    | Symbol | Name | Meaning |
+    | --- | --- | --- |
+    | `r` | Read | View contents |
+    | `w` | Write | Modify contents |
+    | `x` | Execute | Run the file |
+    
+    ---
+    
+    # 6. Permissions for Files
+    
+    | Permission | Meaning |
+    | --- | --- |
+    | `r` | Read file contents |
+    | `w` | Edit/modify file |
+    | `x` | Execute the file |
+    
+    Example:
+    
+    ```
+    -rw-r--r--
+    ```
+    
+    Owner:
+    
+    - Read ✅
+    - Write ✅
+    - Execute ❌
+    
+    Group:
+    
+    - Read ✅
+    
+    Others:
+    
+    - Read ✅
+    
+    ---
+    
+    # 7. Permissions for Directories
+    
+    | Permission | Meaning |
+    | --- | --- |
+    | `r` | List file names (`ls`) |
+    | `w` | Create, delete, rename files |
+    | `x` | Enter/traverse directory (`cd`) |
+    
+    > **Remember:** For directories, `x` means **enter**, not execute.
+    > 
+    
+    ---
+    
+    # 8. Reading Permission Strings
+    
+    Example:
+    
+    ```
+    -rwxr-x---
+    ```
+    
+    Owner:
+    
+    - Read ✅
+    - Write ✅
+    - Execute ✅
+    
+    Group:
+    
+    - Read ✅
+    - Execute ✅
+    
+    Others:
+    
+    - No permissions
+    
+    ---
+    
+    Example:
+    
+    ```
+    drwxr-xr-x
+    ```
+    
+    - `d` → Directory
+    - Owner → rwx
+    - Group → r-x
+    - Others → r-x
+    
+    ---
+    
+    # 9. Important Commands
+    
+    View permissions:
+    
+    ```bash
+    ls -l
+    ```
+    
+    View directory permissions:
+    
+    ```bash
+    ls -ld directory_name
+    ```
+    
+    Example:
+    
+    ```bash
+    ls -l app.py
+    ls -ld Projects
+    ```
+    
+    ---
+    
+    # 10. Linux Permission Decision Flow
+    
+    ```
+    User tries to access file
+              │
+              ▼
+    Is user the Owner?
+          │
+     Yes ─────────► Use Owner permissions
+          │
+          No
+          ▼
+    Is user in the Group?
+          │
+     Yes ─────────► Use Group permissions
+          │
+          No
+          ▼
+    Use Others permissions
+    ```
+    
+    ---
+    
+    # 11. Key Differences
+    
+    | File | Directory |
+    | --- | --- |
+    | `r` → Read contents | `r` → List names |
+    | `w` → Edit file | `w` → Create/Delete/Rename entries |
+    | `x` → Run file | `x` → Enter directory |
+    
+    ---
+    
+    # 12. Common Examples
+    
+    ```
+    -rw-r--r--
+    ```
+    
+    - File
+    - Owner → Read + Write
+    - Group → Read
+    - Others → Read
+    
+    ---
+    
+    ```
+    -rwx------
+    ```
+    
+    - Owner → Read + Write + Execute
+    - Group → None
+    - Others → None
+    
+    ---
+    
+    ```
+    drwxr-xr-x
+    ```
+    
+    Directory
+    
+    Owner:
+    
+    - Read
+    - Write
+    - Enter
+    
+    Group:
+    
+    - Read
+    - Enter
+    
+    Others:
+    
+    - Read
+    - Enter
+    
+    ---
+    
+    # 13. Interview Questions
+    
+    **Q:** What do the first 10 characters in `ls -l` represent?
+    
+    **Answer:** File type + Owner permissions + Group permissions + Others permissions.
+    
+    ---
+    
+    **Q:** What does `x` mean for a directory?
+    
+    **Answer:** Permission to enter/traverse the directory.
+    
+    ---
+    
+    **Q:** What does `w` mean for a directory?
+    
+    **Answer:** Permission to create, delete, and rename files/directories inside it.
+    
+    ---
+    
+    **Q:** In which order does Linux check permissions?
+    
+    1. Owner
+    2. Group
+    3. Others
+    
+    ---
+    
+    # 14. Commands to Remember
+    
+    ```bash
+    ls -l          # Show file permissions
+    ls -ld dir     # Show directory permissions
+    whoami         # Current user
+    id             # UID, GID, groups
+    groups         # User's groups
+    ```
+    
+    ---
+    
+    # 🧠 Memory Trick
+    
+    ```
+    Permission String
+    
+    -rwxr-xr--
+    
+    │
+    ├── -   → File Type
+    ├── rwx → Owner
+    ├── r-x → Group
+    └── r-- → Others
+    ```
+    
+    Think of it as:
+    
+    > **"Type → Owner → Group → Others"**
+    > 
+    
+    This order never changes.
+    
+    ---
+    
+    ## ⭐ Important Takeaways
+    
+    - Every file and directory has **Owner, Group, and Others** permissions.
+    - Only **three permissions** exist: **Read (`r`), Write (`w`), Execute (`x`)**.
+    - **Files and directories interpret `r`, `w`, and `x` differently**.
+    - Use `ls -l` to inspect permissions.
+    - Linux always checks permissions in this order: **Owner → Group → Others**.
+    
+    These are the core concepts you should remember before moving on to **`chmod`**, where you'll learn how to change these permissions.
