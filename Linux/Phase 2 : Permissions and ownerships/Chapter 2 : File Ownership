@@ -1,0 +1,724 @@
+- Chapter 2: File Ownership
+    
+    Excellent! This is where everything starts connecting.
+    
+    In the previous chapter, you learned:
+    
+    - Users
+    - Groups
+    - UID
+    - GID
+    
+    Now you'll understand **how Linux decides who owns a file**.
+    
+    After this chapter, whenever you see something like:
+    
+    ```
+    -rw-r--r-- 1 abhishek developers 1200 Jun 30 app.py
+    ```
+    
+    you'll be able to explain every single part.
+    
+    ---
+    
+    ## Why Does Linux Need File Ownership?
+    
+    Imagine you're working at a software company.
+    
+    There are 50 developers.
+    
+    Everyone writes code.
+    
+    Suppose there is a file:
+    
+    ```
+    salary.xlsx
+    ```
+    
+    Without ownership:
+    
+    - Anyone could modify it.
+    - Anyone could delete it.
+    - Anyone could rename it.
+    
+    That would be a disaster.
+    
+    Linux solves this by assigning **every file and directory**:
+    
+    1. An **owner (user)**
+    2. An **owning group**
+    
+    So every file has an identity.
+    
+    ---
+    
+    # Every File Has an Owner
+    
+    Create a file:
+    
+    ```bash
+    touch notes.txt
+    ```
+    
+    Now check it:
+    
+    ```bash
+    ls -l
+    ```
+    
+    Example output:
+    
+    ```
+    -rw-r--r-- 1 abhishek abhishek 0 Jun 30 12:15 notes.txt
+    ```
+    
+    Let's ignore the first part (`-rw-r--r--`) for now—we'll cover permissions in the next chapter.
+    
+    Focus on this:
+    
+    ```
+    abhishek abhishek
+    ```
+    
+    The **first** `abhishek` is the **owner (user)**.
+    
+    The **second** `abhishek` is the **owning group**.
+    
+    ---
+    
+    # Breaking Down `ls -l`
+    
+    Suppose you see:
+    
+    ```
+    -rw-r--r-- 1 abhishek developers 2048 Jun 30 app.py
+    ```
+    
+    Let's break it apart.
+    
+    ```
+    -rw-r--r--    1    abhishek    developers    2048    Jun 30    app.py
+    ```
+    
+    We'll focus on these columns first.
+    
+    ---
+    
+    ## Column 1 (Permissions)
+    
+    ```
+    -rw-r--r--
+    ```
+    
+    This tells Linux **who can read, write, or execute the file**.
+    
+    We'll study it in detail in the next chapter.
+    
+    ---
+    
+    ## Column 2
+    
+    ```
+    1
+    ```
+    
+    This is the **link count**.
+    
+    We'll explain links later in Phase 2.
+    
+    For now, don't worry about it.
+    
+    ---
+    
+    ## Column 3
+    
+    ```
+    abhishek
+    ```
+    
+    The file owner.
+    
+    Usually, this is the user who created the file.
+    
+    ---
+    
+    ## Column 4
+    
+    ```
+    developers
+    ```
+    
+    The owning group.
+    
+    Members of this group may receive permissions based on the file's settings.
+    
+    ---
+    
+    ## Column 5
+    
+    ```
+    2048
+    ```
+    
+    File size in **bytes**.
+    
+    2048 bytes = 2 KB.
+    
+    ---
+    
+    ## Column 6
+    
+    ```
+    Jun 30
+    ```
+    
+    Last modification date.
+    
+    ---
+    
+    ## Column 7
+    
+    ```
+    app.py
+    ```
+    
+    File name.
+    
+    ---
+    
+    # Visual Representation
+    
+    ```
+    -rw-r--r-- 1 abhishek developers 2048 Jun 30 app.py
+    │           │ │         │          │        │
+    │           │ │         │          │        └── File name
+    │           │ │         │          └────────── Modified date
+    │           │ │         └───────────────────── Size
+    │           │ └─────────────────────────────── Group
+    │           └───────────────────────────────── Owner
+    └───────────────────────────────────────────── Permissions
+    ```
+    
+    ---
+    
+    # Who Becomes the Owner?
+    
+    Suppose you create:
+    
+    ```bash
+    touch hello.txt
+    ```
+    
+    You are logged in as:
+    
+    ```bash
+    whoami
+    ```
+    
+    Output:
+    
+    ```
+    abhishek
+    ```
+    
+    Then:
+    
+    ```bash
+    ls -l hello.txt
+    ```
+    
+    Output:
+    
+    ```
+    -rw-r--r-- 1 abhishek abhishek 0 Jun 30 hello.txt
+    ```
+    
+    You created it.
+    
+    Therefore:
+    
+    **Owner = You**
+    
+    ---
+    
+    # Which Group Owns the File?
+    
+    Normally:
+    
+    The file inherits your **primary group**.
+    
+    Remember:
+    
+    ```bash
+    id
+    ```
+    
+    Example:
+    
+    ```
+    uid=1000(abhishek)
+    gid=1000(abhishek)
+    groups=1000(abhishek),27(sudo)
+    ```
+    
+    Primary group:
+    
+    ```
+    abhishek
+    ```
+    
+    So new files are usually created with:
+    
+    Owner:
+    
+    ```
+    abhishek
+    ```
+    
+    Group:
+    
+    ```
+    abhishek
+    ```
+    
+    ---
+    
+    # Does Root Own Everything?
+    
+    No.
+    
+    A common misconception is:
+    
+    > Root owns all files.
+    > 
+    
+    Actually:
+    
+    Every file has **one owner**.
+    
+    Some files belong to:
+    
+    ```
+    root
+    ```
+    
+    Others belong to:
+    
+    ```
+    mysql
+    ```
+    
+    Others:
+    
+    ```
+    www-data
+    ```
+    
+    Others:
+    
+    ```
+    postgres
+    ```
+    
+    Others:
+    
+    ```
+    abhishek
+    ```
+    
+    Ownership depends on who created the file or who later changed ownership.
+    
+    ---
+    
+    # Let's Look at `/etc`
+    
+    Run:
+    
+    ```bash
+    ls -l /etc
+    ```
+    
+    You'll see many entries like:
+    
+    ```
+    -rw-r--r-- 1 root root ...
+    ```
+    
+    Why?
+    
+    Because `/etc` contains **system configuration files**.
+    
+    The operating system owns them.
+    
+    ---
+    
+    # Look at Your Home Directory
+    
+    Run:
+    
+    ```bash
+    ls -l ~
+    ```
+    
+    You'll likely see:
+    
+    ```
+    Documents
+    Downloads
+    Desktop
+    ```
+    
+    Most of these will be owned by your user account.
+    
+    ---
+    
+    # Directories Also Have Owners
+    
+    Create:
+    
+    ```bash
+    mkdir Project
+    ```
+    
+    Check:
+    
+    ```bash
+    ls -ld Project
+    ```
+    
+    Notice we used:
+    
+    ```bash
+    -d
+    ```
+    
+    Why?
+    
+    Normally:
+    
+    ```bash
+    ls Project
+    ```
+    
+    lists the **contents** of `Project`.
+    
+    But:
+    
+    ```bash
+    ls -ld Project
+    ```
+    
+    shows information **about the directory itself**.
+    
+    Example:
+    
+    ```
+    drwxr-xr-x 2 abhishek abhishek 4096 Jun 30 Project
+    ```
+    
+    The directory also has:
+    
+    - an owner
+    - a group
+    - permissions
+    
+    ---
+    
+    # File vs Directory
+    
+    ```
+    File
+    
+    notes.txt
+    
+    ↓
+    
+    Owner
+    Group
+    Permissions
+    ```
+    
+    ```
+    Directory
+    
+    Projects/
+    
+    ↓
+    
+    Owner
+    Group
+    Permissions
+    ```
+    
+    Everything has ownership.
+    
+    ---
+    
+    # How Does Linux Decide Access?
+    
+    Suppose:
+    
+    Owner:
+    
+    ```
+    abhishek
+    ```
+    
+    Group:
+    
+    ```
+    developers
+    ```
+    
+    Another user:
+    
+    ```
+    rahul
+    ```
+    
+    tries to open the file.
+    
+    Linux checks in this order:
+    
+    ```
+    Step 1
+    
+    Are you the owner?
+    
+    ↓
+    
+    Yes
+    
+    ↓
+    
+    Use owner permissions.
+    ```
+    
+    Otherwise:
+    
+    ```
+    Step 2
+    
+    Are you a member of the file's group?
+    
+    ↓
+    
+    Yes
+    
+    ↓
+    
+    Use group permissions.
+    ```
+    
+    Otherwise:
+    
+    ```
+    Step 3
+    
+    Use "others" permissions.
+    ```
+    
+    We'll dive deeply into these permission sets in the next chapter.
+    
+    ---
+    
+    # Real Company Example
+    
+    Imagine:
+    
+    ```
+    Backend Team
+    
+    ↓
+    
+    config.yaml
+    ```
+    
+    Owner:
+    
+    ```
+    Abhishek
+    ```
+    
+    Group:
+    
+    ```
+    backend-team
+    ```
+    
+    Permissions might allow:
+    
+    - Abhishek to edit the file.
+    - Everyone in `backend-team` to read it.
+    - Everyone else to have no access.
+    
+    This is how teams safely share resources.
+    
+    ---
+    
+    # Useful Commands
+    
+    ### Show Owner
+    
+    ```bash
+    ls -l
+    ```
+    
+    ---
+    
+    ### Show Directory Owner
+    
+    ```bash
+    ls -ld Project
+    ```
+    
+    ---
+    
+    ### Show Your Username
+    
+    ```bash
+    whoami
+    ```
+    
+    ---
+    
+    ### Show UID and Groups
+    
+    ```bash
+    id
+    ```
+    
+    ---
+    
+    # Practice Lab
+    
+    Run these commands:
+    
+    ```bash
+    mkdir LinuxOwnership
+    ```
+    
+    ```bash
+    cd LinuxOwnership
+    ```
+    
+    ```bash
+    touch app.py
+    touch config.ini
+    touch notes.txt
+    ```
+    
+    Now inspect them:
+    
+    ```bash
+    ls -l
+    ```
+    
+    Create a directory:
+    
+    ```bash
+    mkdir src
+    ```
+    
+    Inspect it:
+    
+    ```bash
+    ls -ld src
+    ```
+    
+    Look at your home directory:
+    
+    ```bash
+    ls -l ~
+    ```
+    
+    Inspect `/etc`:
+    
+    ```bash
+    ls -l /etc | head
+    ```
+    
+    Notice how many files are owned by `root`.
+    
+    ---
+    
+    # Mini Quiz
+    
+    Try to answer these without looking back:
+    
+    1. Does every file have an owner?
+    2. Does every directory have an owner?
+    3. What are the third and fourth columns in `ls -l` output?
+    4. Who usually becomes the owner of a newly created file?
+    5. Which group does a newly created file usually inherit?
+    6. Why do we use `ls -ld` for directories?
+    7. Does `root` own every file?
+    8. In what order does Linux check permissions when a user accesses a file?
+    
+    ---
+    
+    # Interview Questions
+    
+    ### Q1
+    
+    **How do you see the owner of a file?**
+    
+    Answer:
+    
+    ```bash
+    ls -l filename
+    ```
+    
+    ---
+    
+    ### Q2
+    
+    **What does the third column of `ls -l` represent?**
+    
+    Answer:
+    
+    The file owner.
+    
+    ---
+    
+    ### Q3
+    
+    **What does the fourth column represent?**
+    
+    Answer:
+    
+    The owning group.
+    
+    ---
+    
+    ### Q4
+    
+    **Does Linux store an owner for directories as well?**
+    
+    Answer:
+    
+    Yes. Directories have owners, groups, and permissions just like files.
+    
+    ---
+    
+    # What's Next?
+    
+    Now comes one of the **most important Linux topics**—and one that every developer, DevOps engineer, and system administrator needs to understand:
+    
+    ## Chapter 3: File Permissions (`r`, `w`, `x`)
+    
+    You'll learn to decode strings like:
+    
+    ```
+    -rwxr-x---
+    ```
+    
+    and understand exactly:
+    
+    - Who can read?
+    - Who can write?
+    - Who can execute?
+    - Why scripts sometimes say **"Permission denied"**
+    - How Linux decides whether you're allowed to do something
+    
+    Once you master permissions, Linux will start feeling much less mysterious.
