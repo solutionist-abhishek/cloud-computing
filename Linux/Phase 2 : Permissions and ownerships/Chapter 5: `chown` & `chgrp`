@@ -1,0 +1,590 @@
+- Chapter 5: `chown` & `chgrp`
+    
+    Excellent! You've learned **how to change permissions**. Now let's learn **how to change ownership**.
+    
+    Think of it this way:
+    
+    - **`chmod`** → Changes **what** someone can do.
+    - **`chown`** → Changes **who owns** the file.
+    - **`chgrp`** → Changes **which group** owns the file.
+    
+    These commands are heavily used in Linux servers, Docker containers, Nginx, Apache, and DevOps.
+    
+    ---
+    
+    # Phase 2 – Chapter 5: `chown` & `chgrp`
+    
+    ## Learning Objectives
+    
+    By the end of this chapter, you'll know:
+    
+    - What ownership is
+    - How to change file owners
+    - How to change file groups
+    - How to change both at once
+    - Recursive ownership changes
+    - Common real-world use cases
+    
+    ---
+    
+    # 1. Recap
+    
+    Create a file:
+    
+    ```bash
+    touch app.py
+    ```
+    
+    Check ownership:
+    
+    ```bash
+    ls -l app.py
+    ```
+    
+    Example:
+    
+    ```
+    -rw-r--r-- 1 abhishek developers 0 Jun 30 app.py
+    ```
+    
+    Focus on:
+    
+    ```
+    abhishek developers
+    ```
+    
+    - Owner = `abhishek`
+    - Group = `developers`
+    
+    ---
+    
+    # 2. What is `chown`?
+    
+    `chown` = **Change Owner**
+    
+    It changes the **owner** of a file or directory.
+    
+    Syntax:
+    
+    ```bash
+    chown new_owner file
+    ```
+    
+    Example:
+    
+    ```bash
+    sudo chown rahul app.py
+    ```
+    
+    Now:
+    
+    ```bash
+    ls -l app.py
+    ```
+    
+    Output:
+    
+    ```
+    -rw-r--r-- 1 rahul developers ...
+    ```
+    
+    Owner changed from `abhishek` → `rahul`.
+    
+    > **Note:** Changing ownership to another user generally requires administrative (`sudo`) privileges.
+    > 
+    
+    ---
+    
+    # 3. Change Only the Group
+    
+    You can also change only the group using `chown`:
+    
+    ```bash
+    sudo chown :backend app.py
+    ```
+    
+    Notice the colon (`:`).
+    
+    Result:
+    
+    ```
+    Owner → unchanged
+    Group → backend
+    ```
+    
+    ---
+    
+    # 4. Change Owner and Group Together
+    
+    Syntax:
+    
+    ```bash
+    sudo chown owner:group file
+    ```
+    
+    Example:
+    
+    ```bash
+    sudo chown rahul:backend app.py
+    ```
+    
+    Result:
+    
+    ```
+    Owner → rahul
+    Group → backend
+    ```
+    
+    ---
+    
+    # Visual Example
+    
+    Before:
+    
+    ```
+    Owner : abhishek
+    Group : developers
+    ```
+    
+    Command:
+    
+    ```bash
+    sudo chown rahul:backend app.py
+    ```
+    
+    After:
+    
+    ```
+    Owner : rahul
+    Group : backend
+    ```
+    
+    ---
+    
+    # 5. What is `chgrp`?
+    
+    `chgrp` = **Change Group**
+    
+    It changes only the group.
+    
+    Syntax:
+    
+    ```bash
+    chgrp group_name file
+    ```
+    
+    Example:
+    
+    ```bash
+    sudo chgrp backend app.py
+    ```
+    
+    Owner:
+    
+    ```
+    abhishek
+    ```
+    
+    Group:
+    
+    ```
+    backend
+    ```
+    
+    ---
+    
+    # `chown :group` vs `chgrp`
+    
+    These two are equivalent:
+    
+    ```bash
+    sudo chown :backend app.py
+    ```
+    
+    ```bash
+    sudo chgrp backend app.py
+    ```
+    
+    Both change only the group.
+    
+    ---
+    
+    # 6. Recursive Ownership
+    
+    Suppose you have:
+    
+    ```
+    Project/
+    │
+    ├── app.py
+    ├── config.py
+    └── src/
+        ├── api.py
+        └── db.py
+    ```
+    
+    Change ownership for everything:
+    
+    ```bash
+    sudo chown -R abhishek:developers Project
+    ```
+    
+    - `R` = **Recursive**
+    
+    Everything inside `Project` gets the new owner and group.
+    
+    ---
+    
+    # 7. Why is `sudo` Needed?
+    
+    Suppose:
+    
+    Owner:
+    
+    ```
+    rahul
+    ```
+    
+    You are:
+    
+    ```
+    abhishek
+    ```
+    
+    Can you simply take ownership?
+    
+    ```bash
+    chown abhishek file.txt
+    ```
+    
+    ❌ No.
+    
+    Otherwise anyone could take ownership of any file.
+    
+    Linux restricts ownership changes to privileged users (typically `root`).
+    
+    ---
+    
+    # 8. Real Developer Examples
+    
+    ## Example 1: Web Server
+    
+    Web server user:
+    
+    ```
+    www-data
+    ```
+    
+    Website folder:
+    
+    ```
+    /var/www/html
+    ```
+    
+    Command:
+    
+    ```bash
+    sudo chown -R www-data:www-data /var/www/html
+    ```
+    
+    This lets the web server own the website files.
+    
+    ---
+    
+    ## Example 2: Docker
+    
+    Docker volume:
+    
+    ```
+    /data
+    ```
+    
+    Container runs as:
+    
+    ```
+    appuser
+    ```
+    
+    Command:
+    
+    ```bash
+    sudo chown -R appuser:appuser /data
+    ```
+    
+    Now the application can access its data correctly.
+    
+    ---
+    
+    ## Example 3: Team Project
+    
+    Owner:
+    
+    ```
+    Abhishek
+    ```
+    
+    Group:
+    
+    ```
+    backend
+    ```
+    
+    New developer joins.
+    
+    Instead of changing every permission individually, add them to the `backend` group and ensure project files belong to that group.
+    
+    ---
+    
+    # 9. Viewing Ownership
+    
+    Use:
+    
+    ```bash
+    ls -l
+    ```
+    
+    Example:
+    
+    ```
+    -rw-r--r-- 1 abhishek backend ...
+    ```
+    
+    Owner:
+    
+    ```
+    abhishek
+    ```
+    
+    Group:
+    
+    ```
+    backend
+    ```
+    
+    ---
+    
+    # 10. Changing Ownership of Directories
+    
+    Create:
+    
+    ```bash
+    mkdir Project
+    ```
+    
+    View:
+    
+    ```bash
+    ls -ld Project
+    ```
+    
+    Change:
+    
+    ```bash
+    sudo chown rahul:backend Project
+    ```
+    
+    View again:
+    
+    ```bash
+    ls -ld Project
+    ```
+    
+    The directory now has a new owner and group.
+    
+    ---
+    
+    # Practice Lab
+    
+    Create:
+    
+    ```bash
+    mkdir OwnershipLab
+    cd OwnershipLab
+    touch app.py config.py
+    mkdir src
+    ```
+    
+    View:
+    
+    ```bash
+    ls -l
+    ```
+    
+    If you have `sudo` access and another user/group available on your system, experiment with:
+    
+    ```bash
+    sudo chown user app.py
+    ```
+    
+    ```bash
+    sudo chgrp group app.py
+    ```
+    
+    ```bash
+    sudo chown user:group config.py
+    ```
+    
+    Check the results each time:
+    
+    ```bash
+    ls -l
+    ```
+    
+    > If you don't have another user configured, you can still practice the syntax and inspect your current ownership with `ls -l`.
+    > 
+    
+    ---
+    
+    # Mini Quiz
+    
+    ### Q1
+    
+    What does `chown` stand for?
+    
+    **Answer:** Change Owner.
+    
+    ---
+    
+    ### Q2
+    
+    What does `chgrp` stand for?
+    
+    **Answer:** Change Group.
+    
+    ---
+    
+    ### Q3
+    
+    How do you change only the owner?
+    
+    ```bash
+    sudo chown user file
+    ```
+    
+    ---
+    
+    ### Q4
+    
+    How do you change only the group?
+    
+    ```bash
+    sudo chgrp group file
+    ```
+    
+    or
+    
+    ```bash
+    sudo chown :group file
+    ```
+    
+    ---
+    
+    ### Q5
+    
+    How do you change both owner and group?
+    
+    ```bash
+    sudo chown user:group file
+    ```
+    
+    ---
+    
+    ### Q6
+    
+    What does `-R` mean?
+    
+    **Answer:** Apply recursively to all files and subdirectories.
+    
+    ---
+    
+    ### Q7
+    
+    Why is `sudo` usually required?
+    
+    **Answer:** To prevent ordinary users from taking ownership of files they don't own.
+    
+    ---
+    
+    # Interview Questions
+    
+    ### Q: Difference between `chmod` and `chown`?
+    
+    | Command | Purpose |
+    | --- | --- |
+    | `chmod` | Changes permissions (`r`, `w`, `x`) |
+    | `chown` | Changes the owner (and optionally the group) |
+    
+    ---
+    
+    ### Q: Difference between `chown` and `chgrp`?
+    
+    | Command | Purpose |
+    | --- | --- |
+    | `chown` | Changes owner, or owner and group together |
+    | `chgrp` | Changes only the group |
+    
+    ---
+    
+    ### Q: Explain this command
+    
+    ```bash
+    sudo chown -R alice:developers Project
+    ```
+    
+    **Answer:**
+    
+    - `sudo` → Run with administrative privileges.
+    - `chown` → Change ownership.
+    - `R` → Apply recursively.
+    - `alice` → New owner.
+    - `developers` → New group.
+    - `Project` → Target directory.
+    
+    ---
+    
+    # Quick Summary
+    
+    | Command | Purpose |
+    | --- | --- |
+    | `ls -l` | View owner and group |
+    | `chown user file` | Change owner |
+    | `chown user:group file` | Change owner and group |
+    | `chown :group file` | Change only group |
+    | `chgrp group file` | Change only group |
+    | `chown -R user:group dir` | Recursive ownership change |
+    
+    ---
+    
+    # Memory Trick
+    
+    Remember these three commands:
+    
+    ```
+    chmod  → Change permissions
+    
+    chown  → Change owner
+    
+    chgrp  → Change group
+    ```
+    
+    Think of them as:
+    
+    - **`chmod`** → **What** can be done?
+    - **`chown`** → **Who** owns it?
+    - **`chgrp`** → **Which team (group)** owns it?
+    
+    ---
+    
+    # Phase 2 Progress
+    
+    You've now completed:
+    
+    - ✅ Users & Groups
+    - ✅ File Ownership
+    - ✅ Linux Permissions
+    - ✅ `chmod`
+    - ✅ `chown` & `chgrp`
+    
+    ## Next Chapter: `umask`
+    
+    This chapter explains **why newly created files and directories get their default permissions** (for example, why files often start as `644` and directories as `755`). Once you understand `umask`, you'll know how Linux calculates default permissions automatically.
