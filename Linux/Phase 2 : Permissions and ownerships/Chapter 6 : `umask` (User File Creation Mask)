@@ -1,0 +1,650 @@
+- Chapter 6: `umask` (User File Creation Mask)
+    
+    Excellent! This chapter answers a question that almost every Linux beginner asks:
+    
+    > **"Why do new files always seem to have `644` permissions and new directories `755`? I never set those permissions!"**
+    > 
+    
+    The answer is **`umask`**.
+    
+    This chapter is one of the most important concepts for understanding Linux permission defaults.
+    
+    ---
+    
+    # Phase 2 – Chapter 6: `umask` (User File Creation Mask)
+    
+    ## Learning Objectives
+    
+    By the end of this chapter, you'll know:
+    
+    - What `umask` is
+    - How Linux assigns default permissions
+    - Why files are usually `644`
+    - Why directories are usually `755`
+    - How to calculate permissions using `umask`
+    - How to temporarily and permanently change `umask`
+    
+    ---
+    
+    # 1. The Problem
+    
+    Create a file:
+    
+    ```bash
+    touch notes.txt
+    ```
+    
+    Check permissions:
+    
+    ```bash
+    ls -l notes.txt
+    ```
+    
+    Output:
+    
+    ```
+    -rw-r--r--
+    ```
+    
+    You never ran:
+    
+    ```bash
+    chmod 644 notes.txt
+    ```
+    
+    So where did `644` come from?
+    
+    ---
+    
+    Create a directory:
+    
+    ```bash
+    mkdir Project
+    ```
+    
+    Check it:
+    
+    ```bash
+    ls -ld Project
+    ```
+    
+    Output:
+    
+    ```
+    drwxr-xr-x
+    ```
+    
+    Again:
+    
+    You never typed:
+    
+    ```bash
+    chmod 755 Project
+    ```
+    
+    So who decided these permissions?
+    
+    👉 **`umask` did.**
+    
+    ---
+    
+    # 2. What is `umask`?
+    
+    `umask` stands for:
+    
+    > **User File Creation Mask**
+    > 
+    
+    It defines which permission bits are **removed** when a new file or directory is created.
+    
+    **Important:**
+    
+    > `umask` does **not** add permissions.
+    > 
+    > 
+    > It only **removes** permissions from the default.
+    > 
+    
+    This is the biggest point students misunderstand.
+    
+    ---
+    
+    # 3. Check Your Current `umask`
+    
+    Run:
+    
+    ```bash
+    umask
+    ```
+    
+    Example:
+    
+    ```
+    0022
+    ```
+    
+    or simply:
+    
+    ```
+    022
+    ```
+    
+    This is the most common default on Linux systems.
+    
+    ---
+    
+    # 4. Default Starting Permissions
+    
+    Linux starts with different maximum permissions for:
+    
+    ### Files
+    
+    ```
+    666
+    ```
+    
+    NOT
+    
+    ```
+    777
+    ```
+    
+    Why?
+    
+    Because it doesn't make sense for every new file to be executable.
+    
+    ---
+    
+    ### Directories
+    
+    Directories start with:
+    
+    ```
+    777
+    ```
+    
+    because directories need execute (`x`) permission to be traversed.
+    
+    ---
+    
+    # Remember This
+    
+    | Object | Starting Permission |
+    | --- | --- |
+    | File | `666` |
+    | Directory | `777` |
+    
+    **Interview Tip:** New files do **not** start at `777`.
+    
+    ---
+    
+    # 5. How `umask` Works
+    
+    Suppose:
+    
+    ```
+    umask = 022
+    ```
+    
+    For files:
+    
+    ```
+    666
+    -022
+    ----
+    644
+    ```
+    
+    Result:
+    
+    ```
+    rw-r--r--
+    ```
+    
+    ---
+    
+    For directories:
+    
+    ```
+    777
+    -022
+    ----
+    755
+    ```
+    
+    Result:
+    
+    ```
+    rwxr-xr-x
+    ```
+    
+    That's why you usually see:
+    
+    ```
+    File      → 644
+    Directory → 755
+    ```
+    
+    ---
+    
+    # Another Example
+    
+    Suppose:
+    
+    ```
+    umask = 002
+    ```
+    
+    Files:
+    
+    ```
+    666
+    -002
+    ----
+    664
+    ```
+    
+    Directories:
+    
+    ```
+    777
+    -002
+    ----
+    775
+    ```
+    
+    Meaning:
+    
+    Files:
+    
+    ```
+    rw-rw-r--
+    ```
+    
+    Directories:
+    
+    ```
+    rwxrwxr-x
+    ```
+    
+    This is common in collaborative development environments.
+    
+    ---
+    
+    # Another Example
+    
+    Suppose:
+    
+    ```
+    umask = 077
+    ```
+    
+    Files:
+    
+    ```
+    666
+    -077
+    ----
+    600
+    ```
+    
+    Directories:
+    
+    ```
+    777
+    -077
+    ----
+    700
+    ```
+    
+    Result:
+    
+    Only the owner has access.
+    
+    Perfect for private systems.
+    
+    ---
+    
+    # Common `umask` Values
+    
+    | umask | File | Directory | Typical Use |
+    | --- | --- | --- | --- |
+    | `022` | `644` | `755` | Standard Linux default |
+    | `002` | `664` | `775` | Team collaboration |
+    | `077` | `600` | `700` | Maximum privacy |
+    
+    ---
+    
+    # Visual Flow
+    
+    ```
+    Create File
+          │
+          ▼
+    Start with 666
+          │
+          ▼
+    Apply umask
+          │
+          ▼
+    Final permissions
+    ```
+    
+    Directory:
+    
+    ```
+    Create Directory
+          │
+          ▼
+    Start with 777
+          │
+          ▼
+    Apply umask
+          │
+          ▼
+    Final permissions
+    ```
+    
+    ---
+    
+    # 6. Temporarily Change `umask`
+    
+    Set:
+    
+    ```bash
+    umask 077
+    ```
+    
+    Now create:
+    
+    ```bash
+    touch secret.txt
+    mkdir Private
+    ```
+    
+    Check:
+    
+    ```bash
+    ls -l secret.txt
+    ls -ld Private
+    ```
+    
+    You'll see:
+    
+    ```
+    -rw-------
+    drwx------
+    ```
+    
+    Only you have access.
+    
+    ---
+    
+    Reset:
+    
+    ```bash
+    umask 022
+    ```
+    
+    ---
+    
+    # 7. Make `umask` Permanent
+    
+    A temporary `umask` lasts only for the current shell session.
+    
+    To make it permanent (for Bash), add it to:
+    
+    ```
+    ~/.bashrc
+    ```
+    
+    Example:
+    
+    ```bash
+    nano ~/.bashrc
+    ```
+    
+    Add:
+    
+    ```bash
+    umask 022
+    ```
+    
+    Reload:
+    
+    ```bash
+    source ~/.bashrc
+    ```
+    
+    ---
+    
+    # 8. Real-World Examples
+    
+    ## Personal Laptop
+    
+    ```
+    umask 022
+    ```
+    
+    Good balance between usability and security.
+    
+    ---
+    
+    ## Company Project
+    
+    Developers need to share files.
+    
+    ```
+    umask 002
+    ```
+    
+    New files are group-writable, making collaboration easier.
+    
+    ---
+    
+    ## SSH Private Keys
+    
+    These should be private.
+    
+    ```
+    umask 077
+    ```
+    
+    Only the owner gets access.
+    
+    ---
+    
+    # 9. Practice Lab
+    
+    Check your current mask:
+    
+    ```bash
+    umask
+    ```
+    
+    Create:
+    
+    ```bash
+    touch file1.txt
+    mkdir Dir1
+    ```
+    
+    Check:
+    
+    ```bash
+    ls -l file1.txt
+    ls -ld Dir1
+    ```
+    
+    Now change:
+    
+    ```bash
+    umask 077
+    ```
+    
+    Create:
+    
+    ```bash
+    touch secret.txt
+    mkdir SecretDir
+    ```
+    
+    Check:
+    
+    ```bash
+    ls -l secret.txt
+    ls -ld SecretDir
+    ```
+    
+    Finally restore:
+    
+    ```bash
+    umask 022
+    ```
+    
+    ---
+    
+    # Mini Quiz
+    
+    ### Q1
+    
+    What does `umask` stand for?
+    
+    **Answer:** User File Creation Mask.
+    
+    ---
+    
+    ### Q2
+    
+    Does `umask` add permissions or remove them?
+    
+    **Answer:** It removes permission bits from the default.
+    
+    ---
+    
+    ### Q3
+    
+    What are the default starting permissions?
+    
+    Files:
+    
+    ```
+    666
+    ```
+    
+    Directories:
+    
+    ```
+    777
+    ```
+    
+    ---
+    
+    ### Q4
+    
+    With `umask 022`, what are the permissions?
+    
+    File:
+    
+    ```
+    644
+    ```
+    
+    Directory:
+    
+    ```
+    755
+    ```
+    
+    ---
+    
+    ### Q5
+    
+    With `umask 077`?
+    
+    File:
+    
+    ```
+    600
+    ```
+    
+    Directory:
+    
+    ```
+    700
+    ```
+    
+    ---
+    
+    ### Q6
+    
+    Why don't new files start with `777`?
+    
+    **Answer:** Because regular files are not made executable by default.
+    
+    ---
+    
+    # Interview Questions
+    
+    ### Q: Why are newly created files usually `644`?
+    
+    **Answer:** Linux starts regular files with `666` and applies the `umask` (commonly `022`), resulting in `644`.
+    
+    ---
+    
+    ### Q: Why are newly created directories usually `755`?
+    
+    **Answer:** Linux starts directories with `777` and applies the `umask` (commonly `022`), resulting in `755`.
+    
+    ---
+    
+    ### Q: What is the difference between `chmod` and `umask`?
+    
+    | Command | Purpose |
+    | --- | --- |
+    | `chmod` | Changes permissions of existing files/directories |
+    | `umask` | Sets the default permissions for newly created files/directories |
+    
+    ---
+    
+    # Memory Trick
+    
+    Remember these formulas:
+    
+    ```
+    Files:
+    666 - umask = final permission
+    ```
+    
+    ```
+    Directories:
+    777 - umask = final permission
+    ```
+    
+    For interviews and exams, memorize these common cases:
+    
+    | umask | File | Directory |
+    | --- | --- | --- |
+    | `022` | `644` | `755` |
+    | `002` | `664` | `775` |
+    | `077` | `600` | `700` |
+    
+    ---
+    
+    # Phase 2 Progress
+    
+    You have now completed:
+    
+    - ✅ Users & Groups
+    - ✅ File Ownership
+    - ✅ Permissions (`r`, `w`, `x`)
+    - ✅ `chmod`
+    - ✅ `chown` & `chgrp`
+    - ✅ `umask`
+    
+    Only **two chapters remain**:
+    
+    1. **Hard Links vs Soft Links** (one of the most important Linux concepts)
+    2. **Real-World Permission Scenarios & Best Practices**
+    
+    After those, you'll have a strong understanding of Linux permissions and ownership, which forms the foundation for system administration, backend development, and DevOps.
